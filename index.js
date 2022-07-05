@@ -11,7 +11,6 @@ const server = http.createServer(app)
 const {Server} = require('socket.io')
 
 const path = require('path')
-const { Console } = require('console')
 
 app.use(express.static(path.join(__dirname, 'public')))
 
