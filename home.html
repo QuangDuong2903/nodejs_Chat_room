@@ -1,0 +1,79 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat room</title>
+    <link rel="stylesheet" href="home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Merriweather&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;1,100;1,200;1,300;1,400&family=Roboto:wght@100&display=swap" rel="stylesheet"
+</head>
+<body>
+    <div class="pop-up">
+        <h1>Nhập username</h1>
+        <input type="text" id = "username">
+        <button id ="goto-chat-room">Go to chat room</button>
+    </div>
+    <h1 class="title">Chat room của Quang Dương</h1>
+    <h3></h3>
+    <div class="main">
+        <ul id="messages">
+
+        </ul>
+        <ul id="online-user">
+            
+        </ul>
+    </div>
+    <form action="">
+        <input type="text" name="" id="message">
+        <button id="send-mess">Send</button>
+    </form>
+    <script src="socket.io/socket.io.js"></script>
+    <script>
+        const socket = io()
+        const form = document.querySelector('form')
+        const messages = document.querySelector('#messages')
+        const user = document.querySelector('#online-user')
+        const btn = document.querySelector('#send-mess')
+        const username = document.querySelector('#username')
+        document.querySelector('#goto-chat-room').addEventListener('click', () => {
+            document.querySelector('h3').innerText = 'Welcome ' + username.value
+            document.querySelector('div').classList.add('hide')
+            socket.emit('user-connected', {name: username.value})
+        })
+        form.addEventListener('submit', (e) => {
+            e.preventDefault()
+            socket.emit('on-chat', {user: username.value, message: message.value})
+            message.value = ''
+        })
+        socket.on('load-chat', (data) => {
+            const messItem = document.createElement('li')
+            messItem.textContent = data.user + ': ' + data.message
+            messages.appendChild(messItem)
+        })
+        socket.on('update-user', (data) => {
+            const messItem = document.createElement('li')
+            messItem.textContent = data.name + ' connected'
+            messages.appendChild(messItem)
+        })
+        socket.on('update-online-user', (data) => {
+            console.log(data)
+            user.innerHTML = `<h3>Online user</h3>`
+            data.forEach(name => {
+                if(username.value !== name)
+                {
+                    const userItem = document.createElement('li')
+                    userItem.textContent = name
+                    user.appendChild(userItem)
+                }
+            })
+        })
+        socket.on('remove-user', (data) => {
+            const messItem = document.createElement('li')
+            messItem.textContent = data + ' disconnect'
+            messages.appendChild(messItem)
+        })
+    </script>
+</body>
+</html>
