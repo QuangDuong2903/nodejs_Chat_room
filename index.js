@@ -9,7 +9,6 @@ const server = http.createServer(app)
 const {Server} = require('socket.io')
 
 const path = require('path')
-const { Console } = require('console')
 
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -30,9 +29,12 @@ io.on('connection', (socket) => {
         io.emit('update-user', data)
     })
     socket.on('disconnect', () => {
-        io.emit('remove-user', username)
-        user.splice(user.indexOf(username), 1)
-        io.emit('update-online-user', user)
+        if(username)
+        {
+            io.emit('remove-user', username)
+            user.splice(user.indexOf(username), 1)
+            io.emit('update-online-user', user)
+        }
     })
     socket.on('on-chat', data => {
         io.emit('load-chat', data)
